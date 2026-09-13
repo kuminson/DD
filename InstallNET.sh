@@ -159,9 +159,11 @@ while [[ $# -ge 1 ]]; do
 
 if [[ -d /sys/firmware/efi ]]; then
   isUEFI='1'
+  EFI_PARTMAN_UDeb='partman-efi'
   echo -e "\n\033[36mUEFI mode detected.\033[0m"
 else
   isUEFI='0'
+  EFI_PARTMAN_UDeb=''
 fi
 
 function dependence(){
@@ -661,7 +663,7 @@ d-i clock-setup/utc boolean true
 d-i time/zone string US/Eastern
 d-i clock-setup/ntp boolean false
 
-d-i preseed/early_command string anna-install libfuse2-udeb fuse-udeb ntfs-3g-udeb libcrypto1.1-udeb libpcre2-8-0-udeb libssl1.1-udeb libuuid1-udeb zlib1g-udeb wget-udeb
+d-i preseed/early_command string anna-install $EFI_PARTMAN_UDeb libfuse2-udeb fuse-udeb ntfs-3g-udeb libcrypto1.1-udeb libpcre2-8-0-udeb libssl1.1-udeb libuuid1-udeb zlib1g-udeb wget-udeb
 d-i partman/early_command string [[ -n "\$(blkid -t TYPE='vfat' -o device)" ]] && umount "\$(blkid -t TYPE='vfat' -o device)"; \
 debconf-set partman-auto/disk "\$(list-devices disk |head -n1)"; \
 wget -qO- '$DDURL' |gunzip -dc |/bin/dd of=\$(list-devices disk |head -n1); \
@@ -747,6 +749,8 @@ d-i grub-installer/bootdev string $IncDisk
 # On UEFI VPSes, also install the fallback removable-media copy.
 # This is safe once /boot/efi exists and helps firmware that does not retain NVRAM entries.
 d-i grub-installer/force-efi-extra-removable boolean true
+d-i grub-installer/update-nvram boolean false
+d-i grub2/update_nvram boolean false
 d-i finish-install/reboot_in_progress note
 d-i debian-installer/exit/reboot boolean true
 d-i preseed/late_command string	\
