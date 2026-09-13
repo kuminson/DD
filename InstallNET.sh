@@ -622,7 +622,7 @@ $UNCOMP < /tmp/$NewIMG | cpio --extract --verbose --make-directories --no-absolu
 
 if [[ "$linux_relese" == 'debian' ]] || [[ "$linux_relese" == 'ubuntu' ]]; then
 CurrentKernelVersion=`ls -1 ./lib/modules 2>/dev/null |head -n1`
-[ -n "$CurrentKernelVersion" ] && SelectLowmem="di-utils-exit-installer,driver-injection-disk-detect,fdisk-udeb,netcfg-static,parted-udeb,partman-auto,partman-ext3,ata-modules-${CurrentKernelVersion}-di,efi-modules-${CurrentKernelVersion}-di,sata-modules-${CurrentKernelVersion}-di,scsi-modules-${CurrentKernelVersion}-di,scsi-nic-modules-${CurrentKernelVersion}-di" || SelectLowmem=""
+[ -n "$CurrentKernelVersion" ] && SelectLowmem="di-utils-exit-installer,driver-injection-disk-detect,fdisk-udeb,netcfg-static,parted-udeb,partman-auto,partman-efi,partman-ext3,ata-modules-${CurrentKernelVersion}-di,efi-modules-${CurrentKernelVersion}-di,sata-modules-${CurrentKernelVersion}-di,scsi-modules-${CurrentKernelVersion}-di,scsi-nic-modules-${CurrentKernelVersion}-di" || SelectLowmem=""
 cat >/tmp/boot/preseed.cfg<<EOF
 d-i debian-installer/locale string en_US.UTF-8
 d-i debian-installer/country string US
@@ -632,6 +632,7 @@ d-i console-setup/layoutcode string us
 
 d-i keyboard-configuration/xkb-keymap string us
 d-i lowmem/low note
+d-i anna/choose_modules string $EFI_PARTMAN_UDeb
 d-i anna/choose_modules_lowmem multiselect $SelectLowmem
 
 d-i netcfg/choose_interface select $interfaceSelect
@@ -687,6 +688,7 @@ if [[ "$isUEFI" == '1' ]]; then
 cat >>/tmp/boot/preseed.cfg<<EOF
 d-i partman-partitioning/choose_label select gpt
 d-i partman-partitioning/default_label string gpt
+d-i partman-efi/non_efi_system boolean false
 d-i partman-auto/method string regular
 d-i partman-auto/expert_recipe string                         \
     uefi-root ::                                                \
